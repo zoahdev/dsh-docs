@@ -6,6 +6,27 @@
 > as-is. All branches are based on the same master commit and verified against
 > the discussions they cite.
 
+## Official test-suite verification (2026-08-15, Windows / Node 24 / pnpm 11)
+
+Full official monorepo checkout at 47f9438, `pnpm install --frozen-lockfile`,
+then the five patches applied with `git apply`:
+
+| Stage | Test files | Tests | Result |
+| --- | --- | --- | --- |
+| Baseline (no patches) | 45 | 1140 | ✅ all passed |
+| After all 5 patches | 46 | 1146 | ✅ all passed (exit 0) |
+
+Packages covered: `@deepseek-ai/dsh-tools`, `@deepseek-ai/dsh-app-boot`,
+`@deepseek-ai/dsh-terminal-bash`, `@deepseek-ai/dsh-llm-deepseek`,
+`@deepseek-ai/dsh-client-ui-primitives`. The +6 tests are the
+`duplicate-instance` regression suite carried by patch #1697.
+
+Notes:
+- All five patches apply cleanly to current master (`git apply --check` OK).
+- Patch #1861 required updating 3 official adapter assertions (reasoning
+  efforts list now includes `low`); that test update is part of the branch.
+- Full log: `pnpm exec vitest run <5 test dirs>` → 1146 passed, exit 0.
+
 ## 1. #1697 — tool scheduler dual-instance crash (`undefined.prepare`)
 
 - Branch: `fix/tool-runtime-scheduler-symbol-for`
