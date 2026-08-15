@@ -100,6 +100,14 @@ Notes:
 - Evidence: `tsc -b tsconfig.host.json` clean; skill-filesystem-watcher 11/11 including the new ELOOP regression test; remaining skill spec failures on Windows are pre-existing EPERM symlink-permission cases
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1954 (comment #discussioncomment-18030568)
 
+## 10. #1961 - purged %TEMP% spill directory crashes the whole service (ENOENT)
+
+- Branch: `fix/subprocess-spill-recreate-on-enoent`
+- Files: `packages/subprocess/subprocess-local/src/spawn.ts` (+ regression test in `spawn.spec.ts`)
+- Fix: `spillAll` catches ENOENT, recreates the private spill dir (`mkdirSync recursive, mode 0700`), retries `openSync` once; if recreation fails, degrades to the in-memory tail instead of crashing from the stream `data` callback
+- Evidence: host typecheck clean; runtime reproduction with a missing spill dir (tail + full spill preserved, no throw); regression test runs in the Linux CI lane (spawn.spec is excluded on Windows runners)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1961 (comment #discussioncomment-18030665)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
