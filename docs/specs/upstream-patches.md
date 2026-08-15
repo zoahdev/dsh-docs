@@ -140,6 +140,14 @@ Notes:
 - Evidence: `tsc -b tsconfig.host.json` clean; cancel.spec 32/32 with a DOMException-abort regression test
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1997 (comment #discussioncomment-18031394)
 
+## 15. #2009 - port-less browser Origins 403 on every /api POST (trust fence)
+
+- Branch: `fix/api-trust-origin-hostname-portless`
+- Files: `packages/client/connection/src/api-request-trust.ts` (+ regression test)
+- Fix: Origin comparison uses `.hostname` instead of exact `.host`, mirroring the trustedHosts port-less convention; cross-hostname and opaque origins stay refused
+- Evidence: `tsc -b tsconfig.host.json` clean; api-request-trust 11/11 with a #2009 regression case
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2009 (comment #discussioncomment-18031625)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
