@@ -75,6 +75,14 @@ Notes:
 - Evidence: official suite `session-persistence-jsonl` — baseline 239/239 ✅, with patch 239/239 ✅ (no regression)
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1891
 
+## 7. #1919 - crypto.randomUUID crashes the Web UI on plain-HTTP LAN origins
+
+- Branch: `fix/web-crypto-randomuuid-insecure-context`
+- Files: new zero-dependency `packages/util/random-uuid` (+ 4 unit tests); browser-facing mints routed through it in `dsh-commands` (instance token), `dsh-client-ui-conversation` (draft attachment id), `dsh-host-apiproxy` (`mintRpcId`), `dsh-llm` (`MessageId`); `dsh-client-connection` re-exports the shared helper; `packages/client/tsdown.client.ts` registers it as `INLINE_SAFE` (pure browser-safe contract, no runtime identity)
+- Fix: prefer `crypto.randomUUID()`, fall back to a `crypto.getRandomValues()`-backed RFC 4122 v4 generator on insecure origins (LAN HTTP / Tailscale IP)
+- Evidence: `pnpm install --frozen-lockfile` passes (lockfile diff = importer entries only); `build:lib:host` and `build:lib:client` both pass; targeted vitest 782/782 (llm + client-connection + commands + random-uuid); built bundles contain no direct `crypto.randomUUID()` mints
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1919 (comment #discussioncomment-18030320)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
