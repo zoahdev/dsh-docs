@@ -196,6 +196,14 @@ Notes:
 - Evidence: `host/webserver` webserver.spec 2/2 green (including the fail-loud activation case)
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2081 (comment #discussioncomment-18032613)
 
+## 22. #2068 - a single duplicate seq makes the whole session log unloadable
+
+- Branch: `fix/session-log-duplicate-seq-tolerance`
+- Files: `packages/session/session-persistence-jsonl/src/format.ts` (+ regression test in `tests/jsonl.spec.ts`)
+- Fix: tolerate an event whose seq equals the last accepted event's seq (a single reopen/append duplicate) by skipping it and recording it in `skippedDuplicateSeqs`, instead of refusing the whole log; a real seq gap and out-of-order corruption still fail
+- Evidence: session-persistence-jsonl jsonl.spec 152/152 green with a duplicate-seq regression
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2068
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
