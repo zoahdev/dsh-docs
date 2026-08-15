@@ -204,6 +204,14 @@ Notes:
 - Evidence: session-persistence-jsonl jsonl.spec 152/152 green with a duplicate-seq regression
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2068
 
+## 23. #2090 - streaming tool-call name/id blanked by explicit-null deltas
+
+- Branch: `fix/llm-deepseek-toolcall-null-name`
+- Files: `packages/llm/llm-deepseek/src/translate.ts` (+ regression test in `tests/translate.spec.ts`)
+- Fix: guard tool-call `id`/`name` accumulation with `!= null` so providers that repeat `name: null`/`id: null` on continuation chunks (SGLang and other OpenAI-compatible streams) don't overwrite the first-chunk values; the same guard covers the emitted delta name
+- Evidence: `llm-deepseek` translate.spec 31/31 green with an explicit-null regression
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2090 (also #1713)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
