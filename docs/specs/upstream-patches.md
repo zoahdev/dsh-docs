@@ -180,6 +180,14 @@ Notes:
 - Evidence: `core/tools` tools.spec 136/136 with the updated rejection assertion
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2075 (comment #discussioncomment-18032459)
 
+## 20. #2081 - startup fails with a bare stripTypeScriptTypes error (Node/bun floor)
+
+- Branch: `fix/node-version-startup-gate`
+- Files: `apps/cli/src/bin.ts`, `apps/cli/src/runtime-check.ts` (+ `apps/cli/tests/runtime-check.spec.ts`)
+- Fix: add a startup gate mirroring the declared `engines.node` range (`^22.19.0 || >=24.0.0`); unsupported runtimes (old Node, Node 23, bun) get a readable message instead of `Export named 'stripTypeScriptTypes' not found`. `--help`/`--version` still resolve before the gate.
+- Evidence: `apps/cli` runtime-check.spec 5/5 + args.spec 6/6 green
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2081 (comment #discussioncomment-18032592)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
