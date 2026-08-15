@@ -172,6 +172,14 @@ Notes:
 - Evidence: `pnpm typecheck` clean; `tool-str-replace-editor` tools.spec 16/16 (14 existing + 2 new: read-only and workspace-write on a bare backend)
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2066 (comment #discussioncomment-18032410)
 
+## 19. #2075 - approval rejection loops the agent (rejection rendered as an ordinary error)
+
+- Branch: `fix/approval-reject-stop-instruction`
+- Files: `packages/core/tools/src/index.ts` (+ test assertion in `tests/tools.spec.ts`)
+- Fix: `serviceAsk` maps `rejected` to an explicit stop-and-ask reason ("Stop and ask the user... do not retry or work around the rejection") instead of a generic tool error, so the model hands the turn back rather than re-requesting approval. Loop-level yield-on-rejection remains a separate follow-up.
+- Evidence: `core/tools` tools.spec 136/136 with the updated rejection assertion
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2075 (comment #discussioncomment-18032459)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
