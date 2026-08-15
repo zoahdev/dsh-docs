@@ -84,6 +84,22 @@ Notes:
 - Full official suite on this Windows environment: 12731 passed / 80 failed (23 files) - every failing file is environment-specific (symlink/ACL sandbox, PTY/pwsh, worker-thread timeout, network-gated real-product tests) and outside the patch's package set; the six touched package suites are green
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1919 (comment #discussioncomment-18030320)
 
+## 8. #1944 - compaction summarizer misses the provider prefix cache (re-bills ~122k tokens per compaction)
+
+- Branch: `fix/compaction-inherit-header-config`
+- Files: `packages/compaction/compaction-basic/src/summarizer.ts` (+ tests)
+- Fix: inherit the routed header config wholesale (same semantics as agent-loop's request proposal, adapter-defaulted fields dropped) instead of cherry-picking provider/model and forcing `maxTokens: 8192`; the compaction call keeps the exact provider cache key of normal turns
+- Evidence: `tsc -b tsconfig.host.json` clean; compaction-basic 124/124; reporter session data: 122,558 input tokens / 0 cache -> 402 new input tokens + 220,928 `cacheReadTokens`
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1944 (comment #discussioncomment-18030489)
+
+## 9. #1954 - circular skill junctions crash dsh at startup (ELOOP fatal load failure)
+
+- Branch: `fix/skill-filesystem-eloop-contained`
+- Files: `packages/skill/skill-filesystem/src/index.ts` (+ watcher regression test)
+- Fix: ELOOP-class watcher errors degrade only the affected root (warn + unhealthy + close partial watcher + skip) instead of rejecting provider load; scheduled rewatch retries and recovers when the cycle is fixed; non-ELOOP startup errors keep their existing contract
+- Evidence: `tsc -b tsconfig.host.json` clean; skill-filesystem-watcher 11/11 including the new ELOOP regression test; remaining skill spec failures on Windows are pre-existing EPERM symlink-permission cases
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1954 (comment #discussioncomment-18030568)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
