@@ -70,3 +70,60 @@ dsh-plugin-doctor --profile ~/.dsh/profiles/web --json
 **Fix**: apply the #1697 fix (staged branch above), reinstall the profile so
 the host `@deepseek-ai/*` copy resolves first, then start a new session — the
 stuck session cannot unwind the unpaired tool call.
+
+## `npm install` inside `profiles/node_modules` wipes the runtime dependency tree
+
+**Root cause**: `$DSH_HOME/profiles/node_modules` is a package.json-less
+fallback tree that `healProfilesModuleFallback` re-links to the deployment
+anchor on every launch. Running `npm install <pkg>` in that directory makes npm
+treat every existing package as extraneous and **prune** it (510+ packages in
+one report), after which `dsh web` fails with `ERR_MODULE_NOT_FOUND` and does
+not self-heal (#2081).
+
+**Do not** run `npm install`/`pnpm install` directly in a profile directory.
+Install plugins through the CLI so the profile tree is updated safely:
+
+```sh
+dsh plugin --profile web add <package>       # npm / git / tarball
+```
+
+**Recover**: restore the pruned tree from the deployment anchor (the install
+that owns `dsh`) by re-running the deployment install, or recreate the profile
+and re-add plugins. `dsh-plugin-doctor --profile <dir>` flags a pruned tree via
+the `profile-deps` check before the next boot.
+
+## npm 11 blocks native postinstall scripts (`allow-scripts`)
+
+npm 11 defaults `allow-scripts=false`, so native modules (`koffi`, `node-pty`,
+`dsh-subprocess-local`) never build and `dsh web` misbehaves with no clear
+message (#2081). Install with the exact allow-list instead:
+
+```sh
+npm install -g --allow-scripts=@deepseek-ai/dsh-subprocess-local,koffi,node-pty,@google/genai,protobufjs @deepseek-ai/dsh
+```
+
+The `dsh plugin` path uses pnpm, which has the same protection under a
+different name (`allowBuilds` in the profile's `pnpm-workspace.yaml`); the CLI
+prints the exact key to add when a git-hosted `prepare` script is blocked.
+
+## `stripTypeScriptTypes` missing: Node too old, or running under bun
+
+`dsh` depends on `node:module.stripTypeScriptTypes`, which needs Node >= 22.6
+(the project declares `^22.19.0 || >=24.0.0`). Under bun, or on an older Node,
+the failure surfaces as a bare `Export named 'stripTypeScriptTypes' not found
+in module 'node:module'` (#2081).
+
+**Fix**: run `dsh` under Node 22.19+ (or 24+). bun is not supported. Verify
+with `node --version`.
+
+## `dsh web` again prints a raw `EADDRINUSE` stack
+
+When the port is already in use by another `dsh web`, the listen error is not
+special-cased and surfaces as a bare Node stack (#2081). Until a friendly
+single-instance message lands upstream, check the port first:
+
+```sh
+dsh-plugin-doctor --env --port 3080   # reports whether 127.0.0.1:3080 is in use
+```
+
+Either stop the existing instance or launch with a different port.
