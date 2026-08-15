@@ -1,6 +1,6 @@
 # Upstream patch queue — cherry-pick-ready branches
 
-> Maintained by zoahdev · Base: `deepseek-ai/deepseek-harness@master` (47f9438, 2026-08-13) · Updated 2026-08-15
+> Maintained by zoahdev · Base: `deepseek-ai/deepseek-harness@master` (47f9438, 2026-08-13) · Updated 2026-08-16
 >
 > When upstream reopens the PR channel, each branch below can be cherry-picked
 > as-is. All branches are based on the same master commit and verified against
@@ -163,6 +163,14 @@ Notes:
 - Fix: classify session.prompt/subagent.prompt as `caller-signal-only` (user-paced, same as pickDirectory) so the fixed 30s deadline no longer applies; caller/connection aborts remain; other unary methods keep the bounded timeout
 - Evidence: `tsc -b tsconfig.host.json` clean; fetch-carrier.spec 36/36 with a prompt-finishes-after-30s regression
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2060 (comment #discussioncomment-18032208)
+
+## 18. #2066 - minimal preset's str_replace_editor ignores the permission mode (bare fs)
+
+- Branch: `fix/str-replace-editor-bare-fs-policy`
+- Files: `packages/fs/tool-str-replace-editor/src/index.ts` (+ regression tests in `tests/tools.spec.ts`)
+- Fix: resolve `ctx.sandboxPolicy` unconditionally; when the mounted fs does not confine (`fs-local`, `sandboxMode === undefined`), the editor enforces the per-call policy itself (read-only denies all three write commands; workspace-write contains to the `writableRoots` set) before delegating to the bare backend; confining backends keep delegating to `writeText`
+- Evidence: `pnpm typecheck` clean; `tool-str-replace-editor` tools.spec 16/16 (14 existing + 2 new: read-only and workspace-write on a bare backend)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2066 (comment #discussioncomment-18032410)
 
 ## Submit checklist (when the channel opens)
 
