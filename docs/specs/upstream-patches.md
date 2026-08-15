@@ -230,6 +230,14 @@ Notes:
 - Evidence: `core/tools` tools.spec 136/136 green with `concludesTurn: true` on the rejection result; `pnpm typecheck` clean
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2075
 
+## 26. #2106 - session persistence fails on Android/Termux (SELinux denies link)
+
+- Branch: `fix/jsonl-link-eacces-rename-fallback`
+- Files: `packages/session/session-persistence-jsonl/src/index.ts` (+ regression test in `tests/jsonl.spec.ts`)
+- Fix: `materializePosix` falls back to `rename()` when `link()` is denied (`EACCES`/`EPERM`/`EXDEV`/`ENOTSUP`/`ENOSYS`), keeping `link()` as the primary no-clobber publish elsewhere; `rejectExistingLog` still runs first
+- Evidence: session-persistence-jsonl jsonl.spec 152/152 green with a mock-link-EACCES fallback regression
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2106
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
