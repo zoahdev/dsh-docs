@@ -148,6 +148,22 @@ Notes:
 - Evidence: `tsc -b tsconfig.host.json` clean; api-request-trust 11/11 with a #2009 regression case
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2009 (comment #discussioncomment-18031625)
 
+## 16. #2023 - pi-ai compat cannot override developer-role/store/reasoning-content switches
+
+- Branch: `fix/pi-ai-compat-expose-role-store`
+- Files: `packages/llm/llm-pi-ai/src/catalog.ts`, `src/config.ts` (+ regression test)
+- Fix: expose `supportsDeveloperRole`, `supportsStore`, `requiresReasoningContentOnAssistantMessages` in PiAiCompatProfile/schema/resolution with model > route > catalog precedence
+- Evidence: `tsc -b tsconfig.host.json` clean; catalog.spec 53/53 with a qwen-token-plan-style regression
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2023 (comment #discussioncomment-18031734)
+
+## 17. #2060 - session.prompt aborted by the fixed 30s unary timeout under host load
+
+- Branch: `fix/prompt-user-paced-no-deadline`
+- Files: `packages/host/apiproxy/src/fetch/client.ts` (+ regression test)
+- Fix: classify session.prompt/subagent.prompt as `caller-signal-only` (user-paced, same as pickDirectory) so the fixed 30s deadline no longer applies; caller/connection aborts remain; other unary methods keep the bounded timeout
+- Evidence: `tsc -b tsconfig.host.json` clean; fetch-carrier.spec 36/36 with a prompt-finishes-after-30s regression
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2060 (comment #discussioncomment-18032208)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
