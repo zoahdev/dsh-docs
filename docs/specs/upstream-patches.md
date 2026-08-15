@@ -38,6 +38,14 @@
 - Evidence: source whitelist confirmed (`off/high/max` only)
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1861
 
+## 5. #1869 — single tilde (`~x~`) wrongly renders as strikethrough
+
+- Branch: `fix/markdown-single-tilde`
+- File: `packages/client/ui-primitives/src/markdown/parse.ts` (both call sites)
+- Fix: `gfm()` → `gfm({ singleTilde: false })` (micromark option; `marked` has no such option in v16 — verified)
+- Evidence: micromark-extension-gfm@3 repro: `~x~` delete → literal with `singleTilde:false`; `~~y~~` stays delete
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1869
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
