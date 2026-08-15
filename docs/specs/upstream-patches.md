@@ -1,0 +1,47 @@
+# Upstream patch queue — cherry-pick-ready branches
+
+> Maintained by zoahdev · Base: `deepseek-ai/deepseek-harness@master` (47f9438, 2026-08-13) · Updated 2026-08-15
+>
+> When upstream reopens the PR channel, each branch below can be cherry-picked
+> as-is. All branches are based on the same master commit and verified against
+> the discussions they cite.
+
+## 1. #1697 — tool scheduler dual-instance crash (`undefined.prepare`)
+
+- Branch: `fix/tool-runtime-scheduler-symbol-for`
+- Files: `packages/core/tools/src/index.ts`, agent-loop protocol guard + regression tests
+- Fix: `Symbol.for` shared key + `TOOL_RUNTIME_SCHEDULER_PROTOCOL_VERSION` guard (loud, actionable error on version skew instead of silent mismatch)
+- Evidence: mechanism-level verification with two physical `dsh-tools@0.1.0-rc.6` copies (false → true); three-state matrix (same-version duplicate / version-skew / single instance)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1697
+
+## 2. #1842 — UTF-8 BOM crashes `dsh web` at boot
+
+- Branch: `fix/profile-manifest-bom-strip`
+- File: `packages/boot/app-boot/src/profile.ts` (`readProfileManifest`)
+- Fix: strip a leading `\uFEFF` before `JSON.parse` (one line)
+- Evidence: local repro (BOM → `Unexpected token`, strip → works); companion `manifest-bom` check in dsh-plugin-doctor
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1842
+
+## 3. #1856 — Windows minimal preset bash cannot resolve `/bin/bash`
+
+- Branch: `fix/terminal-bash-win32-shell`
+- File: `packages/terminal/terminal-bash/src/index.ts`
+- Fix: win32 + default `shellPath` → probe PATH / Git for Windows / LOCALAPPDATA for `bash.exe`; actionable error when missing
+- Evidence: node-pty repro (`File not found`); companion `win-bash` check in dsh-plugin-doctor
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1856
+
+## 4. #1861 — `deepseek-official` adapter rejects `reasoning_effort: low`
+
+- Branch: `fix/llm-deepseek-reasoning-low`
+- File: `packages/llm/llm-deepseek/src/adapter.ts`
+- Fix: add `low` to `REASONING_EFFORTS` (one const + one entry)
+- Evidence: source whitelist confirmed (`off/high/max` only)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1861
+
+## Submit checklist (when the channel opens)
+
+1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
+2. Run the touched package's tests (each branch carries its regression tests).
+3. Open one PR per branch, title prefixed with the issue/discussion number.
+4. Attach the evidence snippet from the corresponding discussion.
+5. Offer to maintain the patch across release trains (zoahdev commits to this).
