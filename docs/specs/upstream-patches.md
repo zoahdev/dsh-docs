@@ -188,6 +188,14 @@ Notes:
 - Evidence: `apps/cli` runtime-check.spec 5/5 + args.spec 6/6 green
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2081 (comment #discussioncomment-18032592)
 
+## 21. #2081 - second `dsh web` prints a raw EADDRINUSE stack
+
+- Branch: `fix/webserver-eaddrinuse-message`
+- Files: `packages/host/webserver/src/index.ts` (+ regression assertion in `tests/webserver.spec.ts`)
+- Fix: special-case the `EADDRINUSE` listen error into an actionable message (`dsh web is already running: host:port is in use...`) while keeping the original errno as the error `cause`
+- Evidence: `host/webserver` webserver.spec 2/2 green (including the fail-loud activation case)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2081 (comment #discussioncomment-18032613)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
