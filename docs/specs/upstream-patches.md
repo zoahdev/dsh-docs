@@ -212,6 +212,14 @@ Notes:
 - Evidence: `llm-deepseek` translate.spec 31/31 green with an explicit-null regression
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2090 (also #1713)
 
+## 24. #2068 - sqlite backend parity for the duplicate-seq tolerance
+
+- Branch: `fix/session-log-duplicate-seq-tolerance-sqlite`
+- Files: `packages/session/session-persistence-sqlite/src/schema.ts` (+ regression test in `tests/sqlite.spec.ts`)
+- Fix: mirror the jsonl loader tolerance in the sqlite committed-region scanner (skip one duplicate seq, track the expected-seq cursor separately from the row index so a skip is not misread as a torn tail)
+- Evidence: sqlite scanRows describe 9/9 green with a duplicate-seq regression (one pre-existing Windows symlink test is unrelated)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2068
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
