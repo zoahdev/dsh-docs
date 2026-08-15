@@ -124,6 +124,14 @@ Notes:
 - Evidence: `tsc -b tsconfig.host.json` clean; catalog.spec 53/53 with a custom-route vision-model regression test
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1992 (comment #discussioncomment-18031307)
 
+## 13. #2002 - one corrupt Zstandard session log crash-loops `dsh web` at boot
+
+- Branch: `fix/session-list-isolate-corrupt`
+- Files: `packages/session/session-persistence-jsonl/src/index.ts` (+ isolation tests)
+- Fix: `listArtifacts` isolates per-file corruption (unreadable header frame, identity mismatch) with a loud warning and skips the file; targeted `load` still rejects; encoding mismatch and duplicate ids stay fatal
+- Evidence: `tsc -b tsconfig.host.json` clean; session-persistence-jsonl 239/239 with a "good session stays reachable next to a corrupt one" assertion
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2002 (comment #discussioncomment-18031351)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
