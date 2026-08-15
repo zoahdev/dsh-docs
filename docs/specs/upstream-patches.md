@@ -132,6 +132,14 @@ Notes:
 - Evidence: `tsc -b tsconfig.host.json` clean; session-persistence-jsonl 239/239 with a "good session stays reachable next to a corrupt one" assertion
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2002 (comment #discussioncomment-18031351)
 
+## 14. #1997 - Windows stop loses aborted-turn semantics (non-JSON-serializable AbortSignal.reason)
+
+- Branch: `fix/agent-abort-reason-json-safe`
+- Files: `packages/core/agent-loop/src/agent.ts` (+ cancel.spec regression test)
+- Fix: normalize abort reasons before persisting turn/end; typed causes (user/parent/hook/disposed) pass through, DOMException/Error/unknown flatten to `{ kind: 'user' }`
+- Evidence: `tsc -b tsconfig.host.json` clean; cancel.spec 32/32 with a DOMException-abort regression test
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1997 (comment #discussioncomment-18031394)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
