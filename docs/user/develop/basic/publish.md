@@ -27,10 +27,10 @@ Every installable plugin declares a bundle manifest in `package.json`:
 
 ```sh
 # structural checks: manifest / patch / entry / files
-dsh-plugin-doctor preflight .
+dsh-plugin-doctor check .        # 'check' = RFC #1846 surface; 'preflight' is the same pipeline
 ```
 
-`preflight` also runs build, pack, installs into a **fresh** DSH profile, and verifies the plugin id appears in the composed config. Exit `0` = pass, `1` = fail, JSON via `--json`.
+`check`/`preflight` also runs build, pack, installs into a **fresh** DSH profile, and verifies the plugin id appears in the composed config. Exit `0` = pass, `1` = fixable issues, `2` = not a plugin, JSON via `--json`.
 
 ## Known install traps
 
@@ -47,11 +47,20 @@ Then re-run the add.
 
 ### npm `latest` dist-tag may be stale
 
-`@deepseek-ai/dsh-tools` currently has `latest` = `0.0.1-rc.1` (broken train) while the ecosystem runs `0.1.0-rc.6` under `next`. Plugin authors should declare peers explicitly (`^0.1.0-rc.6`) and document the tested version. Users should install `@deepseek-ai/dsh-tools@next` when a plugin requires it.
+As of 2026-08-15, `@deepseek-ai/dsh-tools` has `latest` = `0.1.0-rc.6` (the broken `0.0.1-rc.1` tag was retired). Plugin authors should still declare peers explicitly (`^0.1.0-rc.6`), document the tested version, and re-verify on every release train (see the ecosystem release-compat reports).
 
 ### Peer version mismatch is silent on pnpm
 
 pnpm may link an older RC into a plugin's peer slot with only a generic warning. Add a runtime guard in `apply()` that resolves the actual linked `@deepseek-ai/dsh-tools` version and throws an actionable error on mismatch (see dsh-plugin-template).
+
+## Distribution
+
+After the package is installable, get it listed where users look:
+
+1. **awesome-dsh-plugin** — open a PR adding one line to `README.md` and `README.zh.md` under the matching category (see `contributing.md`). The site and most marketplaces mirror this list.
+2. **Community registries** — dsh-subscribe mirrors the awesome snapshot automatically; entries with a curated `verified` layer can request audit via issue.
+3. **Marketplaces** — PR-based registries such as DSH Marketplace accept a `plugin.json` per plugin; run their validator before submitting.
+4. **npm** — publish the prebuilt tarball so installs skip the `allowBuilds` build-approval step.
 
 ## Checklist
 
