@@ -7,6 +7,8 @@ docs/
   user/develop/basic/publish.md      # plugin publishing guide (preflight + allowBuilds + dist-tags)
   cookbook/adding-a-package.md       # adding a package to a profile
   troubleshooting.md                 # crash families, install failures, Windows-specific issues
+  specs/community-market-registry.md # shared marketplace registry contract v2
+  specs/plugin-first-class-commands.md # dsh plugin check + dsh doctor as first-class commands
 ```
 
 Every command in these documents was actually run on 2026-08-15 (Windows, Node 24, pnpm 11, dsh 0.1.0-rc.6). Sources:
