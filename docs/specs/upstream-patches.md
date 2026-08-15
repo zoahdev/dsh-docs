@@ -81,6 +81,7 @@ Notes:
 - Files: new zero-dependency `packages/util/random-uuid` (+ 4 unit tests); browser-facing mints routed through it in `dsh-commands` (instance token), `dsh-client-ui-conversation` (draft attachment id), `dsh-host-apiproxy` (`mintRpcId`), `dsh-llm` (`MessageId`); `dsh-client-connection` re-exports the shared helper; `packages/client/tsdown.client.ts` registers it as `INLINE_SAFE` (pure browser-safe contract, no runtime identity)
 - Fix: prefer `crypto.randomUUID()`, fall back to a `crypto.getRandomValues()`-backed RFC 4122 v4 generator on insecure origins (LAN HTTP / Tailscale IP)
 - Evidence: `pnpm install --frozen-lockfile` passes (lockfile diff = importer entries only); `build:lib:host` and `build:lib:client` both pass; targeted vitest 782/782 (llm + client-connection + commands + random-uuid); built bundles contain no direct `crypto.randomUUID()` mints
+- Full official suite on this Windows environment: 12731 passed / 80 failed (23 files) - every failing file is environment-specific (symlink/ACL sandbox, PTY/pwsh, worker-thread timeout, network-gated real-product tests) and outside the patch's package set; the six touched package suites are green
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1919 (comment #discussioncomment-18030320)
 
 ## Submit checklist (when the channel opens)
