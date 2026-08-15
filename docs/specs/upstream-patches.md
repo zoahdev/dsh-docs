@@ -180,6 +180,8 @@ Notes:
 - Evidence: `core/tools` tools.spec 136/136 with the updated rejection assertion
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2075 (comment #discussioncomment-18032459)
 
+> Superseded by #25 (`fix/approval-reject-conclude-turn`), which adds the loop-level yield.
+
 ## 20. #2081 - startup fails with a bare stripTypeScriptTypes error (Node/bun floor)
 
 - Branch: `fix/node-version-startup-gate`
@@ -219,6 +221,14 @@ Notes:
 - Fix: mirror the jsonl loader tolerance in the sqlite committed-region scanner (skip one duplicate seq, track the expected-seq cursor separately from the row index so a skip is not misread as a torn tail)
 - Evidence: sqlite scanRows describe 9/9 green with a duplicate-seq regression (one pre-existing Windows symlink test is unrelated)
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2068
+
+## 25. #2075 - a user-rejected approval ends the turn (loop-level)
+
+- Branch: `fix/approval-reject-conclude-turn`
+- Files: `packages/core/tools/src/index.ts` (+ test assertion in `tests/tools.spec.ts`)
+- Fix: the `deny` decision for a user rejection now carries `concludesTurn`, and error results can forward that marker, so the agent loop commits the result and yields the turn instead of auto-continuing into a reject/retry loop; the stop-and-ask message from #19 is folded in. A sandbox denial still does not conclude (escalation stays available)
+- Evidence: `core/tools` tools.spec 136/136 green with `concludesTurn: true` on the rejection result; `pnpm typecheck` clean
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2075
 
 ## Submit checklist (when the channel opens)
 
