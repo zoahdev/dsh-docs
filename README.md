@@ -10,6 +10,7 @@ docs/
   specs/community-market-registry.md # shared marketplace registry contract v2
   specs/plugin-first-class-commands.md # dsh plugin check + dsh doctor as first-class commands
   rfc/community-plugin-registry.md  # RFC #1846 (archived copy, maintainer feedback welcome)
+  specs/upstream-patches.md         # cherry-pick-ready patch queue (#1697/#1842/#1856/#1861)
 ```
 
 Every command in these documents was actually run on 2026-08-15 (Windows, Node 24, pnpm 11, dsh 0.1.0-rc.6). Sources:
