@@ -67,6 +67,14 @@ Notes:
 - Evidence: micromark-extension-gfm@3 repro: `~x~` delete → literal with `singleTilde:false`; `~~y~~` stays delete
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1869
 
+## 6. #1891 — external session-directory deletion kills the process (ENOENT fatal)
+
+- Branch: `fix/session-persistence-recreate-on-enoent`
+- File: `packages/session/session-persistence-jsonl/src/index.ts` (`appendLines`)
+- Fix: catch ENOENT at `open(path, 'a')`, `mkdir(dirname(path), { recursive: true })`, retry once; non-ENOENT errors unchanged
+- Evidence: official suite `session-persistence-jsonl` — baseline 239/239 ✅, with patch 239/239 ✅ (no regression)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1891
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
