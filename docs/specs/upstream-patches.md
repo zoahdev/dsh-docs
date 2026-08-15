@@ -116,6 +116,14 @@ Notes:
 - Evidence: `tsc -b tsconfig.host.json` clean; protocol.spec 10/10 including a cross-instance test; same mechanism as the #1697 fix
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1993 (comment #discussioncomment-18031268)
 
+## 12. #1992 - custom pi-ai routes lose catalog-known modalities (inheritance keyed by provider route, not model id)
+
+- Branch: `fix/pi-ai-catalog-model-id-inheritance`
+- Files: `packages/llm/llm-pi-ai/src/catalog.ts` (+ regression test)
+- Fix: `resolveRouteModels` adds an id-level catalog fallback for input modalities (declared entry > provider catalog > global id catalog > route default); api/baseUrl stay route-owned so a foreign catalog entry never leaks its wire protocol; global id index cached per model id
+- Evidence: `tsc -b tsconfig.host.json` clean; catalog.spec 53/53 with a custom-route vision-model regression test
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1992 (comment #discussioncomment-18031307)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
