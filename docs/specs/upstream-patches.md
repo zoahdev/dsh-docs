@@ -108,6 +108,14 @@ Notes:
 - Evidence: host typecheck clean; runtime reproduction with a missing spill dir (tail + full spill preserved, no throw); regression test runs in the Linux CI lane (spawn.spec is excluded on Windows runners)
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1961 (comment #discussioncomment-18030665)
 
+## 11. #1993 - source launch duplicates dsh-typert-protocol, silently disabling out-of-tree plugin Remote layers
+
+- Branch: `fix/typert-remote-markers-shared-registry`
+- Files: `packages/typert/protocol/src/index.ts` (+ cross-copy regression test)
+- Fix: Remote decorator markers move from a module-private WeakMap to a `Symbol.for`-keyed registry on globalThis, shared by every physical package copy (src under tsx vs lib for out-of-tree plugins); WeakMap semantics and conflict validation preserved
+- Evidence: `tsc -b tsconfig.host.json` clean; protocol.spec 10/10 including a cross-instance test; same mechanism as the #1697 fix
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1993 (comment #discussioncomment-18031268)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
