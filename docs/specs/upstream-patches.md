@@ -319,6 +319,18 @@ Root cause (argszero, building on #2342): the repair path (`prepareCore` →
 appending to — the synthetic seq (`last.seq + 1`) collides with the writer's
 next real seq, and the strict `SessionLogScanner` check then refuses the log.
 
+Verified locations (checked against `master` 47f9438):
+- `packages/core/session/src/repair.ts:27` — `interruptedTurnClosers` synthesizes
+  the closers with `seq = last.seq + 1`.
+- `packages/session/session-persistence/src/coordinator.ts:892` — `prepareCore`
+  calls `interruptedTurnClosers` without re-checking `ctx.sessions` liveness
+  (the public `prepare`/`load` check it earlier, but `prepareCore` runs later
+  inside the per-id serialize reservation — a TOCTOU gap).
+- `packages/session/session-persistence/src/coordinator.ts` — `commitPrepared`
+  checks `states.get(id).owner` but not the live `ctx.sessions` registry.
+- Backends: `session-persistence-jsonl/src/index.ts:436` and
+  `session-persistence-sqlite/src/index.ts:309` (`commitRepair`).
+
 Family: #1333/#1452 (duplicate seq), #1497 (torn tail), #1473 (corruption),
 #1586 (restore-writer vs live-writer), #2167 (duplicate append), #2342
 (repair-writer vs live-writer). Shared defect: append/repair has no persistent
