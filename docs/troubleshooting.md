@@ -127,3 +127,28 @@ dsh-plugin-doctor --env --port 3080   # reports whether 127.0.0.1:3080 is in use
 ```
 
 Either stop the existing instance or launch with a different port.
+
+## Windows sandbox: Schannel HTTPS fails with `SEC_E_NO_CREDENTIALS`
+
+Under the default Windows sandbox, any client that uses the Windows credential
+subsystem for TLS (Schannel) fails inside the confined process, while
+OpenSSL-based clients work fine (#2184):
+
+| Client | TLS backend | Result |
+|---|---|---|
+| `curl.exe` | Schannel | exit 35 `SEC_E_NO_CREDENTIALS` |
+| `Invoke-WebRequest` | Schannel | connection reset |
+| node / python | OpenSSL | 200 OK |
+
+This is the restricted token, not a network policy (plain HTTP and TCP are
+unaffected). `sandbox-windows-acl/src/token.ts` creates the token with the
+`DISABLE_MAX_PRIVILEGE` flag, which disables every privilege except
+`SeChangeNotifyPrivilege`; Schannel's `AcquireCredentialsHandle` then cannot
+obtain a credential. The write boundary is unaffected by this — it is enforced
+by the `WRITE_RESTRICTED` flag plus the restricting-SID allowlist, not by
+privilege reduction.
+
+**Workaround**: run HTTPS through a non-Schannel client inside the sandbox
+(node `fetch`, `python urllib`), or disable the sandbox for that call. The
+proper fix is to retain the LSA/Schannel-path privilege (`SeImpersonatePrivilege`)
+instead of the blanket `DISABLE_MAX_PRIVILEGE`; see discussion #2184.
