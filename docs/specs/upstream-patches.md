@@ -310,6 +310,29 @@ Notes:
 - Evidence: a single max-tokens-truncated `assistant/message` can carry ~255,939 `sourceEventSeqs`; `Math.min(...sources)` exceeds V8's argument/call-stack limit → `RangeError: Maximum call stack size exceeded`, permanently breaking `session.history` (recurrence of #1593). The poster verified the loop over 2M elements returns the correct minimum without a stack error.
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2358
 
+## Session-corruption family analysis (in progress — argszero, #2342)
+
+Root cause (argszero, building on #2342): the repair path (`prepareCore` →
+`interruptedTurnClosers` → `commitRepair`) has no liveness check, so it assumes
+"log balanced = process live" and can splice a synthetic `step/end` +
+`turn/end {reason: interrupted}` closer onto a session a live writer is still
+appending to — the synthetic seq (`last.seq + 1`) collides with the writer's
+next real seq, and the strict `SessionLogScanner` check then refuses the log.
+
+Family: #1333/#1452 (duplicate seq), #1497 (torn tail), #1473 (corruption),
+#1586 (restore-writer vs live-writer), #2167 (duplicate append), #2342
+(repair-writer vs live-writer). Shared defect: append/repair has no persistent
+"who owns the log" contract.
+
+Proposed fix order:
+1. repair-path liveness/lease check — kill the class at the source;
+2. persistent seq-ownership check at `appendLines`/`commitRepair` — reject on
+   mismatch instead of corrupting later;
+3. reader self-heal for the synthetic-tail collision — mirrors #2167.
+
+Status: analysis complete; code pending (argszero is verifying the path). These
+become numbered patches once a branch lands.
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
