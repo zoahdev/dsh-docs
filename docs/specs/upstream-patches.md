@@ -307,7 +307,7 @@ Notes:
 - Branch: `fix/apiproxy-paginate-group-start-loop`
 - File: `packages/host/apiproxy/src/api-proxy.ts` (`paginate`)
 - Fix: replace `Math.min(event.seq, ...sources)` with a bounded loop (`let groupStart = event.seq; for (const source of sources) if (source < groupStart) groupStart = source`)
-- Evidence: a single max-tokens-truncated `assistant/message` can carry ~255,939 `sourceEventSeqs`; `Math.min(...sources)` exceeds V8's argument/call-stack limit → `RangeError: Maximum call stack size exceeded`, permanently breaking `session.history` (recurrence of #1593). The poster verified the loop over 2M elements returns the correct minimum without a stack error.
+- Evidence: a single max-tokens-truncated `assistant/message` can carry ~255,939 `sourceEventSeqs`; `Math.min(...sources)` exceeds V8's argument/call-stack limit → `RangeError: Maximum call stack size exceeded`, permanently breaking `session.history` (recurrence of #1593). Branch landed: `build:lib:host` + `typecheck:contracts-ready` green, apiproxy-view suite 5/5.
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2358
 
 ## 36. #2342 - repair-path liveness re-check (prepareCore TOCTOU)
