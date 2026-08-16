@@ -262,6 +262,14 @@ Notes:
 - Evidence: `packages/typert/loader` loader.spec 17/17 green with a "declared entry whose fiber is detached before activation" regression
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2189 (first reported as #1740)
 
+## 30. #2202 - complete zstd frame ending in a torn JSONL record is a false positive
+
+- Branch: `fix/zstd-torn-record-tail-tolerate`
+- Files: `packages/session/session-persistence-jsonl/src/index.ts` (+ updated test in `tests/zstd.spec.ts`)
+- Fix: `readZstdPrefix` returns the committed prefix instead of throwing when all frames are structurally complete but the last frame ends mid-record (a transient `ZSTD_e_flush` writer state that self-heals); real corruption is still caught by `consumeEventLine`, and the incomplete-final-frame recovery path is unchanged
+- Evidence: session-persistence-jsonl zstd.spec 80/80 green with the #2202 regression
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2202
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
