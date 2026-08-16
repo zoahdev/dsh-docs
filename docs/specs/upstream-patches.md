@@ -270,6 +270,14 @@ Notes:
 - Evidence: session-persistence-jsonl zstd.spec 80/80 green with the #2202 regression
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2202
 
+## 31. #1688 - a `__proto__` settings key mutates the prototype (silent data loss)
+
+- Branch: `fix/settings-proto-key-own-property`
+- Files: `packages/settings/settings/src/index.ts` (+ regression test in `tests/settings.spec.ts`)
+- Fix: `cloneJsonShaped` and `mergeLayers` assign keys via `Object.defineProperty` instead of `target[key] = value`, so a `__proto__` key (valid JSON from a parsed body/config) stays an own data property instead of mutating the prototype; `mergeLayers` is exported for the test
+- Evidence: `settings` settings.spec 90/90 green with a `__proto__` own-key regression
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1688
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
