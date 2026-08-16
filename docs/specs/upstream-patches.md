@@ -254,6 +254,14 @@ Notes:
 - Evidence: built-bin e2e #1377 regression passes; `pnpm typecheck` clean
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1377
 
+## 29. #2189 - typert-loader skips not-yet-mounted entries, breaking `/api/commands/list`
+
+- Branch: `fix/typert-loader-activation-fiber-gate`
+- Files: `packages/typert/loader/src/index.ts` (+ regression test in `packages/typert/loader/tests/loader.spec.ts`)
+- Fix: `qualifies()` required `entry.fiber !== undefined`, so an entry whose plugin fiber had not mounted when typert-loader ran its activation scan was silently skipped; for `@deepseek-ai/dsh-commands` this meant the TYPERT manifest never registered and `/api/commands/list` returned 404. Registration is a wire-schema contract independent of the plugin service lifecycle, so `qualifies()` now accepts a declared, enabled entry while its teardown counter is zero, and only rejects an entry that is mid-dispose (preserving withdraw-on-unmount).
+- Evidence: `packages/typert/loader` loader.spec 17/17 green with a "declared entry whose fiber is detached before activation" regression
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2189 (first reported as #1740)
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
