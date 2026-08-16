@@ -326,6 +326,14 @@ Notes:
 - Evidence: jsonl suite 152/152 (151 existing + 1 synthetic-tail-collision regression); `build:lib:host` + `typecheck:contracts-ready` green.
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2342
 
+## 38. #2386 - Win32 directory picker truncates UTF-16 paths at 0x100-multiple code points
+
+- Branch: `fix/win32-directory-picker-utf16-nul`
+- File: `packages/host/directory-picker-native/src/win32-dialog-bindings.ts` (`readUtf16`)
+- Fix: treat the UTF-16 NUL terminator as a full 16-bit unit (`bytes[end] !== 0 || bytes[end + 1] !== 0`) instead of the low byte alone, so BMP code points that are multiples of 0x100 (言 U+8A00, 一 U+4E00, 刀 U+5200) no longer truncate the path.
+- Evidence: `win32-dialog-bindings` suite 13/13 (12 existing + 1 言语 regression).
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2386
+
 ## Session-corruption family analysis (in progress — argszero, #2342)
 
 Root cause (argszero, building on #2342): the repair path (`prepareCore` →
