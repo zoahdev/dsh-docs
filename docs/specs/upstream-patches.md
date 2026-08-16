@@ -238,6 +238,14 @@ Notes:
 - Evidence: session-persistence-jsonl jsonl.spec 152/152 green with a mock-link-EACCES fallback regression
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2106
 
+## 27. #1404 - `dsh plugin add` promotes a user-patch-inserted bundle and breaks the next boot
+
+- Branch: `fix/plugin-reconcile-user-patch-dup-id`
+- Files: `apps/cli/src/plugin.ts` (+ regression test in `apps/cli/tests/built-bin.e2e.ts`)
+- Fix: `reconcilePlugins` reads the user patch layer's insert ids and skips promoting a bundle whose own patch inserts an id already present there (avoiding "duplicate loader entry id"); new deps and the "update gained dsh.bundle" case still promote
+- Evidence: built-bin e2e #1404 regression + "update gained bundle" both pass; `pnpm typecheck` clean
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1404
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
