@@ -355,6 +355,19 @@ Proposed fix order:
    `commitRepair` → `appendLines` write time);
 3. reader self-heal for the synthetic-tail collision — still open, mirrors #2167.
 
+Fix #3 precise pattern (reader self-heal):
+- The synthetic tail ends with `turn/end` carrying `data.reason.kind === 'interrupted'`
+  (and the immediately preceding synthetic `step/end` / interrupted `tool/result`
+  rows share the same `time` and contiguous `seq = last.seq + 1`).
+- On load, the collision shows as a **backwards seq** in `SessionLogScanner.consumeEventLine`
+  (`format.ts`): after consuming the synthetic tail, the next real event has a
+  seq less than `this.events.length`.
+- Safe heuristic: when a backwards-seq gap is detected and the just-consumed
+  events end in a synthetic `turn/end {reason: interrupted}`, drop only that
+  synthetic tail (it is regenerable — `interruptedTurnClosers` rebuilds it) and
+  continue consuming the real events. Never drop events that are not part of
+  the synthetic tail.
+
 Proposed minimal fix for the TOCTOU gap (fix #1, unverified — needs the
 `session-persistence` coordinator-contract suite to run):
 
