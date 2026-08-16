@@ -334,6 +334,14 @@ Notes:
 - Evidence: `win32-dialog-bindings` suite 13/13 (12 existing + 1 言语 regression).
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2386
 
+## 39. #2376 - tool-cordis cordis_define oneOf stringified by some providers
+
+- Branch: `fix/cordis-define-oneof-provider-stringify`
+- File: `packages/extensions/tool-cordis/src/index.ts`
+- Fix: replace the `plugin` parameter `oneOf` union with a plain object schema (`kind` enum + optional `idPrefix`/`pluginId`) and validate the required branch field in `execute`, so providers that stringify `oneOf` parameters (PI-AI) no longer fail every branch.
+- Evidence: tool-cordis suite 11/11.
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2376
+
 ## Session-corruption family analysis (in progress — argszero, #2342)
 
 Root cause (argszero, building on #2342): the repair path (`prepareCore` →
