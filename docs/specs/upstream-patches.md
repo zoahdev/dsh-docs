@@ -342,6 +342,14 @@ Notes:
 - Evidence: tool-cordis suite 11/11.
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2376
 
+## 40. #2378 - SKILL.md frontmatter with an unquoted colon silently drops the skill
+
+- Branch: `fix/skill-frontmatter-unquoted-colon`
+- File: `packages/skill/skill-filesystem/src/index.ts` (`parseFrontmatter`)
+- Fix: on the specific `BLOCK_AS_IMPLICIT_KEY` YAML error, fall back to a line-based parse (value = everything after the first colon, quotes stripped) so `description: Priority order: check the cache first` catalogs instead of vanishing; other malformed YAML still skips the skill.
+- Evidence: skill-filesystem suite 20/22 (2 failures are Windows symlink EPERM, pre-existing).
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2378
+
 ## Session-corruption family analysis (in progress — argszero, #2342)
 
 Root cause (argszero, building on #2342): the repair path (`prepareCore` →
