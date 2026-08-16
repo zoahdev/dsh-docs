@@ -315,7 +315,7 @@ Notes:
 - Branch: `fix/repair-path-liveness-check`
 - File: `packages/session/session-persistence/src/coordinator.ts` (`prepareCore`)
 - Fix: re-check `ctx.sessions.get(id)` at the top of `prepareCore` (inside the per-id serialize reservation) so a session that becomes live after the public `prepare`/`load`/`inspect` check cannot receive synthetic repair closers that collide with the live writer's next real seq.
-- Evidence: `build:lib:host` + `typecheck:contracts-ready` green (pre-push hook). Runtime `coordinator-contract` semantics (throw-vs-retry) still need a test run.
+- Evidence: `build:lib:host` + `typecheck:contracts-ready` green (pre-push hook). Runtime verified: `session-persistence-jsonl` coordinator-contract suite **151/151 passed** (load/prepare/inspect/repair paths); sqlite suite 99/100 (the 1 failure is a Windows `symlink` EPERM environment issue, unrelated).
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2342
 
 ## Session-corruption family analysis (in progress — argszero, #2342)
@@ -365,9 +365,9 @@ throwing here must be reconciled with the per-id `serialize`/`reserve` retry
 semantics (a throw may abort the loop instead of retrying). Verify against
 `coordinator-contract.ts` before shipping.
 
-Status: fix #1 (repair-path liveness) is landed as patch #36 (branch pushed,
-typecheck green; runtime semantics pending). Fixes #2 (seq-ownership) and #3
-(reader self-heal) are still analysis-only; argszero is verifying the path.
+Status: fix #1 (repair-path liveness) is landed as patch #36 (branch pushed;
+build + typecheck + 151 coordinator-contract tests green). Fixes #2
+(seq-ownership) and #3 (reader self-heal) are still analysis-only.
 
 ## Submit checklist (when the channel opens)
 
