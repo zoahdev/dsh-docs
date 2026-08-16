@@ -310,6 +310,14 @@ Notes:
 - Evidence: a single max-tokens-truncated `assistant/message` can carry ~255,939 `sourceEventSeqs`; `Math.min(...sources)` exceeds V8's argument/call-stack limit → `RangeError: Maximum call stack size exceeded`, permanently breaking `session.history` (recurrence of #1593). The poster verified the loop over 2M elements returns the correct minimum without a stack error.
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2358
 
+## 36. #2342 - repair-path liveness re-check (prepareCore TOCTOU)
+
+- Branch: `fix/repair-path-liveness-check`
+- File: `packages/session/session-persistence/src/coordinator.ts` (`prepareCore`)
+- Fix: re-check `ctx.sessions.get(id)` at the top of `prepareCore` (inside the per-id serialize reservation) so a session that becomes live after the public `prepare`/`load`/`inspect` check cannot receive synthetic repair closers that collide with the live writer's next real seq.
+- Evidence: `build:lib:host` + `typecheck:contracts-ready` green (pre-push hook). Runtime `coordinator-contract` semantics (throw-vs-retry) still need a test run.
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2342
+
 ## Session-corruption family analysis (in progress — argszero, #2342)
 
 Root cause (argszero, building on #2342): the repair path (`prepareCore` →
@@ -357,8 +365,9 @@ throwing here must be reconciled with the per-id `serialize`/`reserve` retry
 semantics (a throw may abort the loop instead of retrying). Verify against
 `coordinator-contract.ts` before shipping.
 
-Status: analysis complete; code pending (argszero is verifying the path). These
-become numbered patches once a branch lands.
+Status: fix #1 (repair-path liveness) is landed as patch #36 (branch pushed,
+typecheck green; runtime semantics pending). Fixes #2 (seq-ownership) and #3
+(reader self-heal) are still analysis-only; argszero is verifying the path.
 
 ## Submit checklist (when the channel opens)
 
