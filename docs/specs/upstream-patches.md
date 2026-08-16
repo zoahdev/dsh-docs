@@ -318,6 +318,14 @@ Notes:
 - Evidence: `build:lib:host` + `typecheck:contracts-ready` green (pre-push hook). Runtime verified: `session-persistence-jsonl` coordinator-contract suite **151/151 passed** (load/prepare/inspect/repair paths); sqlite suite 99/100 (the 1 failure is a Windows `symlink` EPERM environment issue, unrelated).
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2342
 
+## 37. #2342 - reader self-heal for the synthetic-tail seq collision
+
+- Branch: `fix/session-log-synthetic-tail-self-heal`
+- File: `packages/session/session-persistence-jsonl/src/format.ts` (`SessionLogScanner.consumeEventLine`)
+- Fix: when a backwards seq appears immediately after a synthetic `turn/end {reason: interrupted}`, drop only that regenerable synthetic tail and re-align with the real events instead of rejecting the whole log.
+- Evidence: jsonl suite 152/152 (151 existing + 1 synthetic-tail-collision regression); `build:lib:host` + `typecheck:contracts-ready` green.
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2342
+
 ## Session-corruption family analysis (in progress — argszero, #2342)
 
 Root cause (argszero, building on #2342): the repair path (`prepareCore` →
@@ -353,7 +361,8 @@ Proposed fix order:
    is guarded by `isPreparedSourceCurrent` (`readStoredRevision === source.revision`).
    Remaining gap is narrow (a cross-process, revision-stable collision at
    `commitRepair` → `appendLines` write time);
-3. reader self-heal for the synthetic-tail collision — still open, mirrors #2167.
+3. reader self-heal for the synthetic-tail collision — **landed**, patch #37,
+   verified 152/152.
 
 Fix #3 precise pattern (reader self-heal):
 - The synthetic tail ends with `turn/end` carrying `data.reason.kind === 'interrupted'`
