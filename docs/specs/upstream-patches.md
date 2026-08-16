@@ -278,6 +278,14 @@ Notes:
 - Evidence: `settings` settings.spec 90/90 green with a `__proto__` own-key regression
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1688
 
+## 32. #2271 - `eval --` bashism breaks every non-bash persistent shell
+
+- Branch: `fix/persistent-bash-eval-portable`
+- Files: `packages/shell/tool-bash-persistent/src/index.ts` (+ regression test in `tests/tools.spec.ts`)
+- Fix: `wrapCommand` uses a leading space inside the quoted word (`eval $' <command>'`) instead of `eval --`, blocking option parsing portably; busybox ash no longer treats `--` as the command name, and dash-prefixed commands still aren't parsed as `eval` options
+- Evidence: tool-bash-persistent wrapCommand regression (2 new cases) green
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2271
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
