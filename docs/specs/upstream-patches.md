@@ -342,6 +342,21 @@ Proposed fix order:
    mismatch instead of corrupting later;
 3. reader self-heal for the synthetic-tail collision — mirrors #2167.
 
+Proposed minimal fix for the TOCTOU gap (fix #1, unverified — needs the
+`session-persistence` coordinator-contract suite to run):
+
+```ts
+// coordinator.ts — inside prepareCore, before loadStored():
+if (this.ctx.sessions.get(id) !== undefined) {
+  throw new Error(`cannot prepare session "${id}" while it is live`)
+}
+```
+
+Caveat: `prepare`/`load`/`inspect` already check liveness and retry in a loop;
+throwing here must be reconciled with the per-id `serialize`/`reserve` retry
+semantics (a throw may abort the loop instead of retrying). Verify against
+`coordinator-contract.ts` before shipping.
+
 Status: analysis complete; code pending (argszero is verifying the path). These
 become numbered patches once a branch lands.
 
