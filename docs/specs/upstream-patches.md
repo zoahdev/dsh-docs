@@ -358,6 +358,14 @@ Notes:
 - Evidence: llm-pi-ai suite 210/210.
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2388
 
+## 42. #2405 - cross-platform session restore rejects the other OS's absolute cwd
+
+- Branch: `fix/session-restore-cross-platform-cwd`
+- File: `packages/core/session/src/index.ts` (`validateSessionHeader`)
+- Fix: accept the `cwd` when either `posix.isAbsolute` or `win32.isAbsolute` is true (instead of `path.isAbsolute`, which checks only the current platform), so a Windows-created session restores on POSIX.
+- Evidence: session suite 78/78.
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2405
+
 ## Session-corruption family analysis (in progress — argszero, #2342)
 
 Root cause (argszero, building on #2342): the repair path (`prepareCore` →
