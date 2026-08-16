@@ -350,6 +350,14 @@ Notes:
 - Evidence: skill-filesystem suite 20/22 (2 failures are Windows symlink EPERM, pre-existing).
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2378
 
+## 41. #2388 - expose compat.supportsDeveloperRole for custom OpenAI-compatible endpoints
+
+- Branch: `fix/pi-ai-supports-developer-role-flag`
+- Files: `packages/llm/llm-pi-ai/src/catalog.ts`, `packages/llm/llm-pi-ai/src/config.ts`
+- Fix: add a `compat.supportsDeveloperRole` switch (route + per-model) that overrides pi-ai's vendor-list auto-detection, so domestic OpenAI-compatible endpoints (volces.com, aliyuncs.com, ...) can set it `false` and fall back to the `system` role instead of being rejected with HTTP 400.
+- Evidence: llm-pi-ai suite 210/210.
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2388
+
 ## Session-corruption family analysis (in progress — argszero, #2342)
 
 Root cause (argszero, building on #2342): the repair path (`prepareCore` →
