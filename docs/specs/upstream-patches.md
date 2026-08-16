@@ -294,6 +294,14 @@ Notes:
 - Evidence: `verify-runtime-closure` passes (110 workspace packages, closed graph)
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2273
 
+## 34. #1613 - Windows restricted-token runner surfaces opaque fast-fail exit codes
+
+- Branch: `fix/windows-acl-fast-fail-hint`
+- Files: `packages/sandbox/sandbox-windows-acl/src/runner.ts`, `src/fast-fail.ts` (+ `tests/fast-fail.spec.ts`)
+- Fix: decode the high-signal NTSTATUS fast-fail family (`STATUS_DLL_INIT_FAILED`/`STATUS_STACK_BUFFER_OVERRUN`/`STATUS_ACCESS_VIOLATION`) into a stderr hint pointing at the restricted-token cause and the `danger-full-access`/per-tool override workaround; the exit code is still mirrored unchanged
+- Evidence: `sandbox-windows-acl` fast-fail.spec 2/2 green; `pnpm typecheck` clean
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1613
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
