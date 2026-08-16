@@ -345,10 +345,15 @@ Family: #1333/#1452 (duplicate seq), #1497 (torn tail), #1473 (corruption),
 "who owns the log" contract.
 
 Proposed fix order:
-1. repair-path liveness/lease check — kill the class at the source;
-2. persistent seq-ownership check at `appendLines`/`commitRepair` — reject on
-   mismatch instead of corrupting later;
-3. reader self-heal for the synthetic-tail collision — mirrors #2167.
+1. repair-path liveness/lease check — kill the class at the source (**landed**,
+   patch #36, verified 151/151);
+2. persistent seq-ownership check — **substantially already implemented**: the
+   live append path asserts the "Contiguity contract" (`appendCore`,
+   `coordinator.ts` ~699: `event.seq === state.cursor + i`), and the repair path
+   is guarded by `isPreparedSourceCurrent` (`readStoredRevision === source.revision`).
+   Remaining gap is narrow (a cross-process, revision-stable collision at
+   `commitRepair` → `appendLines` write time);
+3. reader self-heal for the synthetic-tail collision — still open, mirrors #2167.
 
 Proposed minimal fix for the TOCTOU gap (fix #1, unverified — needs the
 `session-persistence` coordinator-contract suite to run):
