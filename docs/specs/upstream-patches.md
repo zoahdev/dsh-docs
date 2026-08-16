@@ -286,6 +286,14 @@ Notes:
 - Evidence: tool-bash-persistent wrapCommand regression (2 new cases) green
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2271
 
+## 33. #2273 - SDK runtime closure omits `dsh-mcp-client`
+
+- Branch: `fix/sdk-runtime-mcp-client-closure`
+- Files: `python/sdk-runtime/package.json` (+ `pnpm-lock.yaml`)
+- Fix: add `@deepseek-ai/dsh-mcp-client: workspace:^` to the Python SDK node-mode deploy root, so a custom composition that mounts an external MCP server loads on the shipped runtime
+- Evidence: `verify-runtime-closure` passes (110 workspace packages, closed graph)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/2273
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
