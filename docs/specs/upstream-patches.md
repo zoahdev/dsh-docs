@@ -246,6 +246,14 @@ Notes:
 - Evidence: built-bin e2e #1404 regression + "update gained bundle" both pass; `pnpm typecheck` clean
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1404
 
+## 28. #1377 - `dsh plugin install` silently drops an unresolvable declared bundle
+
+- Branch: `fix/plugin-reconcile-user-patch-dup-id` (second commit, same reconcile root as #27)
+- Files: `apps/cli/src/plugin.ts` (+ regression test in `apps/cli/tests/built-bin.e2e.ts`)
+- Fix: split resolution into bundle/plain/unresolvable and preserve an unresolvable declared bundle with a loud warning instead of splicing it out while `install` reports success
+- Evidence: built-bin e2e #1377 regression passes; `pnpm typecheck` clean
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/1377
+
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
