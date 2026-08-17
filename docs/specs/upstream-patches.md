@@ -1,6 +1,6 @@
 # Upstream patch queue — cherry-pick-ready branches
 
-> Maintained by zoahdev · Base: `deepseek-ai/deepseek-harness@master` (47f9438, 2026-08-13) · Updated 2026-08-16
+> Maintained by zoahdev · Base: `deepseek-ai/deepseek-harness@master` (47f9438, 2026-08-13) · Updated 2026-08-17
 >
 > When upstream reopens the PR channel, each branch below can be cherry-picked
 > as-is. All branches are based on the same master commit and verified against
@@ -439,6 +439,36 @@ Status: fix #1 (repair-path liveness) is landed as patch #36 (branch pushed;
 build + typecheck + 151 coordinator-contract tests green). Fixes #2
 (seq-ownership) and #3 (reader self-heal) are still analysis-only.
 
+
+## Tracked diagnoses (analysis-only, no patch yet)
+
+These are source-verified problems with a clear fix direction but no
+cherry-pick-ready branch yet. They are tracked separately so the patch queue
+above stays honest ("ready to submit" only).
+
+### D1 — #2107 token meter underestimates dense tool-schema / tool-result surfaces
+
+- Source: `packages/llm/token-meter/src/estimate.ts` — flat
+  `CHARS_PER_TOKEN = 4` for text, reasoning, tool-call arguments, tool results,
+  system prompt, and tool schemas.
+- Runtime evidence: rc.6 web session (Crow0077, #2107) — 821 events, zero
+  `compaction/start`; provider rejected with context-exceeded while the meter
+  stayed below the pressure gate (`baseline.kind=estimated`).
+- Fix direction: anchor to provider tokenization (or a denser per-surface
+  floor for JSON/tool-schema content) so compaction fires before the provider
+  limit. Needs upstream decision on estimator vs. exact tokenizer.
+
+### D2 — #2107 web-profile compaction never activates (realm wiring)
+
+- Source: `packages/bundle/web-app/cordis.patch.yml` disables the host-plane
+  copies of `compaction-basic` / `command-compact` / `tool-result-pruner`;
+  the standard preset's `isolate: { compaction: true }` copy does not render
+  or fire for web sessions.
+- Runtime evidence: re-enabling the host copy is composition-verified
+  (`--dump-config` shows `disabled: false`) yet runtime-ineffective — zero
+  compaction events; points to the preset realm never joining the session.
+- Fix direction: decide host-plane vs preset-realm ownership, then repair the
+  realm wiring (or scope the `disabled: true` to the host copy only).
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
