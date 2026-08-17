@@ -6,6 +6,9 @@
 > as-is. All branches are based on the same master commit and verified against
 > the discussions they cite.
 
+> **RFC:** the maintainer-facing proposal for this 42-patch queue lives at
+> [deepseek-harness discussion #2486](https://github.com/deepseek-ai/deepseek-harness/discussions/2486).
+
 ## Official test-suite verification (2026-08-15, Windows / Node 24 / pnpm 11)
 
 Full official monorepo checkout at 47f9438, `pnpm install --frozen-lockfile`,
