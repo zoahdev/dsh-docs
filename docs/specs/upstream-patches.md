@@ -1,6 +1,6 @@
 # Upstream patch queue — cherry-pick-ready branches
 
-> Maintained by zoahdev · Base: `deepseek-ai/deepseek-harness@master` (47f9438, 2026-08-13) · Updated 2026-08-17
+> Maintained by zoahdev · Base: `deepseek-ai/deepseek-harness@master` (47f9438, 2026-08-13) · Updated 2026-08-19
 >
 > When upstream reopens the PR channel, each branch below can be cherry-picked
 > as-is. All branches are based on the same master commit and verified against
@@ -469,6 +469,17 @@ above stays honest ("ready to submit" only).
   compaction events; points to the preset realm never joining the session.
 - Fix direction: decide host-plane vs preset-realm ownership, then repair the
   realm wiring (or scope the `disabled: true` to the host copy only).
+
+## 43. #3219 — same-mode `sandbox_permissions` request fails with "not strictly wider"
+
+- Branch: `fix/escalation-same-mode-pass-through` (zoahdev/deepseek-harness, sha 8d83d01)
+- Base: official `main` HEAD `99f6f02` (0.1.0-rc.7, 2026-08-17) — not the older 47f9438 master base of patches 1-42
+- Files: `packages/sandbox/sandbox/src/escalation.ts`, `packages/sandbox/sandbox/tests/escalation.spec.ts`
+- Fix: `approveEscalation` returns the requested mode when `requestedMode === effectiveMode` (no permission gain, no approval prompt), checked before the strictly-wider ladder; `danger-full-access -> danger-full-access` pass-throughs become a silent no-op instead of an error
+- Tests: same-mode grants for read-only / workspace-write / danger-full-access never ask the approver; non-widening fixtures updated to genuinely narrower/incomparable pairs (workspace-write requested from danger-full-access, read-only requested from workspace-write)
+- Verification (2026-08-19, Windows / Node 24 / pnpm 11): `vitest run packages/sandbox/sandbox/tests` → 3 files / 19 tests passed (escalation.spec.ts 12/12); full host tree `tsc -b tsconfig.host.json` typecheck passed (lefthook pre-push)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3219
+- Note: the discussion also proposed a tool-layer same-mode skip (before `validateEscalationArgs`, tool-bash index.ts:67 / tool-pwsh index.ts:99 / tool-fs sandbox.ts:88) for models that omit `justification`; that follow-up is intentionally left out of this branch (requires effective-mode resolution at validation time) and should be its own patch if upstream wants it
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
