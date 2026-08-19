@@ -500,6 +500,16 @@ above stays honest ("ready to submit" only).
 - Verification (2026-08-19, Windows / Node 24 / pnpm 11): `vitest run packages/llm/llm-deepseek packages/llm/llm-pi-ai` → 15 files / 373 tests passed; full host tree typecheck passed (lefthook pre-push)
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3222
 - Note: pi-ai classification is message-text based (SDK embeds status in error text); a structured-status path would be a further hardening, left out of this minimal branch
+
+## 46. #3226 — adopted vision models lose input modalities during discovery
+
+- Branch (rebased onto main): `fix/discovered-model-modality-rebased` (zoahdev/deepseek-harness, eac57cc + ee3659b) — rebase of Ricardo-M-L's `fix/discovered-model-modality` (631eecc9, base master 47f9438) onto official main `99f6f02` (rc.7)
+- Original author: Ricardo-M-L; rebase + independent verification: zoahdev
+- Files (9): `packages/llm/llm/src/types.ts` (LlmDiscoveredModel.inputModalities), `packages/llm/llm/src/index.ts` (discover mapping), `packages/llm/llm-pi-ai/src/discovery.ts` (catalog short-circuit passes input), `packages/host/apiproxy/src/api/llm.ts` + `llm.schema.ts` (wire view), `api-proxy.ts` (thread-through), `ui-settings-models/ModelListEditor.tsx` (adopt copies input + "Accepts image input" checkbox), `ModelsSection.module.css`, `locales.ts`
+- Fix: model discovery (endpoint listing + catalog short-circuit) carries input modalities; the settings-page fetch/adopt path keeps vision capability; users can also toggle image input per row
+- Verification (2026-08-19, Windows / Node 24 / pnpm 11): `vitest run packages/llm/llm-pi-ai packages/llm/llm packages/client/ui-settings-models` → 41 files / 854 tests passed; host tree `tsc -b` exit 0
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3226
+- Note: initial verification comment by zoahdev mis-attributed the LlmModelInfo field to LlmDiscoveredModel; corrected in a follow-up comment — the type-level field was genuinely missing on main
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
