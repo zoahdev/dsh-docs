@@ -489,6 +489,17 @@ above stays honest ("ready to submit" only).
 - Fix: read side already honors `ignorable: true` (coordinator.ts:1063; types.ts:412-422); this closes the write-side gap so out-of-tree plugins can mark informational events skippable instead of refusing resume on builds that do not know the type
 - Verification (2026-08-19, Windows / Node 24 / pnpm 11): rebased branch `vitest run packages/core/session packages/session/session-persistence` → 761/762 passed; the single failure is a pre-existing Windows symlink EPERM in session-persistence-sqlite (reproduces on clean main); full host tree typecheck passed (lefthook pre-push)
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3191
+
+## 45. #3222 — HTTP 403 classified as AUTH hides the real provider error
+
+- Branch: `fix/error-classify-403-forbidden` (zoahdev/deepseek-harness, sha f3111fb)
+- Base: official main/master HEAD `99f6f02` (rc.7)
+- Files: `packages/llm/llm-deepseek/src/adapter.ts` (httpErrorCode 401->AUTH / 403->FORBIDDEN), `packages/llm/llm-pi-ai/src/stream.ts` (classifyPiAiError split), tests (`llm-deepseek/tests/adapter.spec.ts` [403,'FORBIDDEN'], `llm-pi-ai/tests/adapter.spec.ts` +[403,'FORBIDDEN'], `llm-pi-ai/tests/convert.spec.ts` +mapStopReason 403 case), README.md + README.zh.md error-code lists
+- Fix: 403 (credentials accepted, provider policy refusal) becomes FORBIDDEN and failure-display projects the raw provider message; 401 stays AUTH with the credential-safe mask. Retry semantics unchanged (FORBIDDEN not in default retryable codes, retry-policy.ts:19-25)
+- Root cause + patch draft credit: MwumLi (#3222); branch built + independently verified: zoahdev
+- Verification (2026-08-19, Windows / Node 24 / pnpm 11): `vitest run packages/llm/llm-deepseek packages/llm/llm-pi-ai` → 15 files / 373 tests passed; full host tree typecheck passed (lefthook pre-push)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3222
+- Note: pi-ai classification is message-text based (SDK embeds status in error text); a structured-status path would be a further hardening, left out of this minimal branch
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
