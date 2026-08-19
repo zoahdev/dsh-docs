@@ -510,6 +510,16 @@ above stays honest ("ready to submit" only).
 - Verification (2026-08-19, Windows / Node 24 / pnpm 11): `vitest run packages/llm/llm-pi-ai packages/llm/llm packages/client/ui-settings-models` → 41 files / 854 tests passed; host tree `tsc -b` exit 0
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3226
 - Note: initial verification comment by zoahdev mis-attributed the LlmModelInfo field to LlmDiscoveredModel; corrected in a follow-up comment — the type-level field was genuinely missing on main
+
+## 47. #3237 — ReplaceFileW EACCES on watched config files: fall back to rename
+
+- Branch: `fix/atomic-write-eacces-fallback` (zoahdev/deepseek-harness, sha eedb3f4)
+- Base: official main/master HEAD `99f6f02` (rc.7)
+- Files: `packages/fs/fs-local/src/fsio.ts` (win32 publication branch fallback), `packages/fs/fs-local/tests/fsio.spec.ts`
+- Fix: the win32 `ReplaceFileW` branch only fell back to `rename` on ENOENT; HMR's fs.watch handle makes ReplaceFileW fail with EACCES (ERROR_ACCESS_DENIED) while rename succeeds. Fallback now covers `isPermissionError` (EACCES/EPERM); a genuinely locked target fails the rename too, so nothing is masked
+- Root cause credit: report + FFI verification by community (#3237); branch built + verified: zoahdev
+- Verification (2026-08-19, Windows / Node 24 / pnpm 11): targeted fsio.spec tests pass (EACCES->rename fallback; non-recoverable failure still surfaces); full host tree typecheck passed (lefthook pre-push). The 8 symlink EPERM failures in fsio.spec are pre-existing environment issues (Developer Mode off), reproducible without the patch
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3237
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
