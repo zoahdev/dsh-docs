@@ -480,6 +480,15 @@ above stays honest ("ready to submit" only).
 - Verification (2026-08-19, Windows / Node 24 / pnpm 11): `vitest run packages/sandbox/sandbox/tests` → 3 files / 19 tests passed (escalation.spec.ts 12/12); full host tree `tsc -b tsconfig.host.json` typecheck passed (lefthook pre-push)
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3219
 - Note: the discussion also proposed a tool-layer same-mode skip (before `validateEscalationArgs`, tool-bash index.ts:67 / tool-pwsh index.ts:99 / tool-fs sandbox.ts:88) for models that omit `justification`; that follow-up is intentionally left out of this branch (requires effective-mode resolution at validation time) and should be its own patch if upstream wants it
+
+## 44. #3191 — ignorable envelope on non-surface session append (out-of-tree plugin events)
+
+- Branch (rebased onto current main): `fix/session-append-ignorable-envelope-rebased` (zoahdev/deepseek-harness, sha 5c47ed6) — rebase of Mchsd's `feat/session-append-ignorable-envelope` (6430083a, base master 47f9438) onto official main `99f6f02` (rc.7)
+- Original author: Mchsd (branch 6430083a); rebase + independent verification: zoahdev
+- Files: `packages/core/session/src/types.ts` (+AppendOpts envelope contract), `packages/core/session/src/index.ts` (append opts split + ignorable write-through + warn-at-append), `packages/session/session-persistence/src/coordinator.ts` (rejection wording), `packages/core/session/tests/session.spec.ts` (+4 regressions), README
+- Fix: read side already honors `ignorable: true` (coordinator.ts:1063; types.ts:412-422); this closes the write-side gap so out-of-tree plugins can mark informational events skippable instead of refusing resume on builds that do not know the type
+- Verification (2026-08-19, Windows / Node 24 / pnpm 11): rebased branch `vitest run packages/core/session packages/session/session-persistence` → 761/762 passed; the single failure is a pre-existing Windows symlink EPERM in session-persistence-sqlite (reproduces on clean main); full host tree typecheck passed (lefthook pre-push)
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3191
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
