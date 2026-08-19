@@ -520,6 +520,18 @@ above stays honest ("ready to submit" only).
 - Root cause credit: report + FFI verification by community (#3237); branch built + verified: zoahdev
 - Verification (2026-08-19, Windows / Node 24 / pnpm 11): targeted fsio.spec tests pass (EACCES->rename fallback; non-recoverable failure still surfaces); full host tree typecheck passed (lefthook pre-push). The 8 symlink EPERM failures in fsio.spec are pre-existing environment issues (Developer Mode off), reproducible without the patch
 - Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3237
+
+## 48. #3245 — CRITICAL: run_code worker-thread runtime bypasses the file sandbox (fail-closed)
+
+- Branch: `fix/run-code-failclosed-sandbox` (zoahdev/deepseek-harness, sha 93f7d83)
+- Base: official main/master HEAD `99f6f02` (rc.7)
+- Severity: critical (sandbox escape; CVSS 10.0 / 9.8 as reported)
+- Files: `packages/core/tools/src/code-mode.ts` (guard + `RunCodeBridgeOptions.resolveSandboxMode`), `packages/core/tools/src/index.ts` (registry passes the sandbox-policy closure), `packages/core/tools/tests/code-mode.spec.ts` (+2 regression tests)
+- Fix: run_code refuses to dispatch when the code runtime isolation is 'worker-thread' and the resolved sandbox policy mode is read-only/workspace-write — the worker applies no file-effect confinement, so under a confined policy it would silently escape the sandbox (arbitrary file read/write + unconfined subprocess, triggerable via prompt injection). danger-full-access remains allowed (no sandbox to escape); DSH_TOOLS_MODE=native disables Code Mode
+- Root cause credit: community report (#3245, with reproduction scripts); verification + fail-closed patch: zoahdev
+- Verification (2026-08-19, Windows / Node 24 / pnpm 11): code-mode.spec 93/93 (incl. 2 new fail-closed tests); tools package 390/390; host tree typecheck clean
+- Note: the root fix is confining the worker via ctx.sandbox.confine (or Node --experimental-permission); this branch is the immediate fail-closed mitigation. The workflow worker-thread (node:vm) and cordis-host-runner dynamic-plugin realms are the same unconfined-surface class and should get the same confinement
+- Discussion: https://github.com/deepseek-ai/deepseek-harness/discussions/3245
 ## Submit checklist (when the channel opens)
 
 1. `git fetch upstream && git merge-base --is-ancestor 47f9438 upstream/master` — rebase if master moved.
